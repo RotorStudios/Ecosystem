@@ -194,7 +194,7 @@ class Variable:
         self.name = name
         self.dependency_re = None
         self.dependents = []
-        self.values = []
+        self._values = []
         self.dependencies = []
         self.strict = False
         self.absolute = False
@@ -217,28 +217,23 @@ class Variable:
         self.strict = value_wrapper.strict_value
         if self.strict is False:
             self.absolute = value_wrapper.absolute_value
-        if value_wrapper.value not in self.values and value_wrapper.value is not None:
-            self.values += [value_wrapper.value]
+        if value_wrapper.value not in self._values and value_wrapper.value is not None:
+            self._values += [value_wrapper.value]
             for var_dependency in self.list_dependencies(value_wrapper.value):
                 if not var_dependency in self.dependencies:
                     self.dependencies.append(var_dependency)
 
     def has_value(self):
-        if len(self.values) > 0:
+        if len(self._values) > 0:
             return True
         return False
-
-    def get_env(self):
-        value = ''
-        count = 0
-        for var_value in self.values:
-            if count != 0:
-                value = value + os.pathsep
-            if self.absolute:
-                var_value = os.path.abspath(var_value)
-            value = value + var_value
-            count += 1
-        return value
+    
+    @property
+    def envValues(self):
+        values = []
+        for var_value in self._values:
+            values.append( os.path.abspath(var_value) if self.absolute else var_value)
+        return os.pathsep.join(values)
     
     def __repr__(self):
         pp = pprint.PrettyPrinter( indent=4)
@@ -280,20 +275,13 @@ class Tool:
                         if name not in env.variables:
                             env.variables[name] = Variable(name)
                         env.variables[name].append_value(value)
-                
-    """Check to see if the tool is supported on the current platform"""
-    def plaformSupported(self):
-        if (self.platforms):
-            if (platform.system().lower() in self.platforms):
-                return True
-        return False
     
     # """Checks to see if this tool defines the given variables"""
     # def definesVariable(self, var):
     #     if var in self.variables:
     #         return True
     #     return False
-
+    
     def __repr__(self):
         return pp.pformat(self.__dict__)
 
@@ -328,7 +316,7 @@ class Environment:
                         for required_tool in new_tool.requirements:
                             if required_tool not in self.tools:
                                 self.wants = self.wants | set(list(required_tool))
-
+        
         template_msg = 'Unable to resolve all required {0}: ({1}) are missing!\n  Please check your list and try again!'
         if len(self.wants) != 0:
             missing_tools = ', '.join(self.wants)
@@ -357,60 +345,70 @@ class Environment:
             self.success = False
 
     def get_var(self, var):
-        if self.success:
-            if var.name not in self.defined_variables:
-                for dependency in var.dependencies:
-                    if dependency in self.variables:
-                        self.get_var(self.variables[dependency])
-                var_value = var.get_env()
-                self.value = self.value + 'setenv ' + var.name + ' ' + var_value
-                if os.getenv(var.name):
-                    if not self.force and not var.strict:
-                        if var_value == '':
-                            self.value = self.value + '${' + var.name + '}'
-                        else:
-                            self.value = self.value + os.pathsep + '${' + var.name + '}'
-                self.value = self.value + '\n'
-                self.defined_variables.append(var.name)
+        if not self.success:
+            return
+        
+        if var.name in self.defined_variables:
+            return
+        
+        for dependency in var.dependencies:
+            if dependency in self.variables:
+                self.get_var(self.variables[dependency])
+                
+        var_value = var.envValues
+        self.value += '  setenv {0}: {1}'.format(var.name, var_value)
+        if os.getenv(var.name):
+            if not self.force and not var.strict:
+                varExp= '${{{0}}}'.format(var.name)
+                if var_value == '':
+                    self.value += varExp
+                else:
+                    self.value += os.pathsep + varExp
 
+        self.value += '\n'
+        self.defined_variables.append(var.name)
+    
     def get_var_env(self, var):
-        if self.success:
-            if var.name not in self.defined_variables:
-                for dependency in var.dependencies:
-                    if dependency in self.variables:
-                        self.get_var_env(self.variables[dependency])
-                var_value = var.get_env()
-                if var.name in os.environ:
-                    if not self.force and not var.strict:
-                        if var_value == '':
-                            var_value = os.environ[var.name]
-                        else:
-                            var_value = var_value + os.pathsep + os.environ[var.name]
-                self.defined_variables.append(var.name)
-                os.environ[var.name] = var_value
-
+        if not self.success or var.name in self.defined_variables:
+            return
+        
+        for dependency in var.dependencies:
+            if dependency in self.variables:
+                self.get_var_env(self.variables[dependency])
+        
+        var_value = var.envValues
+        if var.name in os.environ:
+            if not self.force and not var.strict:
+                envVal = os.environ[var.name]
+                var_value = envVal if not var_value else var_value + os.pathsep + envVal
+        
+        self.defined_variables.append(var.name)
+        os.environ[var.name] = var_value
+    
     def get_env(self, set_environment=False):
+        if not self.success:
+            return 
+         
         # combine all of the variable in all the tools based on a dependency list
-        if self.success:
-            self.defined_variables = []
-            self.value = '#Environment created via Ecosystem\n'
-
-            for var_name, variable in self.variables.items():
-                if self.variables[var_name].has_value():
+        self.defined_variables = []
+        self.value = '#Environment created via Ecosystem\n'
+        
+        for var_name, variable in self.variables.items():
+            if self.variables[var_name].has_value():
                     if not set_environment:
                         self.get_var(variable)
                     else:
-                        self.get_var_env(variable)
-
-            if not set_environment:
-                return self.value
-
+                    self.get_var_env(variable)
+        
+        if not set_environment:
+            return self.value
+        
             # TODO check if we need this repetition
-            for env_name, env_value in os.environ.items():
-                os.environ[env_name] = os.path.expandvars(env_value)
-            for env_name, env_value in os.environ.items():
-                os.environ[env_name] = os.path.expandvars(env_value)
-
+        for env_name, env_value in os.environ.items():
+            os.environ[env_name] = os.path.expandvars(env_value)
+        for env_name, env_value in os.environ.items():
+            os.environ[env_name] = os.path.expandvars(env_value)
+    
     def __repr__(self):
         return pp.pformat(self.__dict__)
 

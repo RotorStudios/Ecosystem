@@ -1,6 +1,7 @@
 import unittest
 import os
 import sys
+from pprint import pprint
 
 ECO_ROOT = os.environ.get('ECO_ROOT') or os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.append(os.path.join(ECO_ROOT, 'bin'))
@@ -69,7 +70,7 @@ class VariableTester(unittest.TestCase):
         variable_obj = Variable(variable)
         variable_obj.append_value(value)
         self.assertEqual(variable_obj.dependents, dependents or [])
-        self.assertEqual(variable_obj.values, values or [])
+        self.assertEqual(variable_obj._values, values or [])
         self.assertEqual(variable_obj.dependencies, dependencies or [])
         self.assertEqual(variable_obj.strict, strict)
         self.assertEqual(variable_obj.absolute, absolute)
@@ -123,7 +124,7 @@ class VariableTester(unittest.TestCase):
     def test_get_env(self):
         self.variable_obj = Variable('MAYA_LOCATION')
         self.variable_obj.append_value('/some/path')
-        self.assertEqual(self.variable_obj.get_env(), '/some/path')
+        self.assertEqual(self.variable_obj.envValues, '/some/path')
 
 
 class ToolTester(unittest.TestCase):
@@ -135,7 +136,7 @@ class ToolTester(unittest.TestCase):
         self.tool = 'maya'
         self.version = '2015'
         self.platforms = ['windows', 'linux', 'darwin']
-        self.requirements = []
+        self.requirements = ['base','pythonBase']
         self.filename = os.path.join(ECO_ROOT, 'env', self.env_file)
         self.tool_obj = Tool(self.filename)
 
@@ -161,7 +162,23 @@ class ToolTester(unittest.TestCase):
                 self.variables = {}
         foo_obj = Foo()
         self.tool_obj.get_vars(foo_obj)
-        variable_list = ['DYLD_LIBRARY_PATH', 'PATH', 'MAYA_LOCATION', 'MAYA_VERSION']
+        variable_list = [
+              'MAYA_SCRIPT_PATH',
+              'MI_CUSTOM_SHADER_PATH',
+              'STUDIO_MAYA_VER',
+              'MAYA_SHELF_PATH',
+              'MAYA_PLUG_IN_PATH',
+              'MAYA_LOCATION',
+              'MAYA_VERSION',
+              'MAYA_MODULE_PATH',
+              'DYLD_LIBRARY_PATH',
+              'XBMLANGPATH',
+              'PYTHONPATH',
+              'PATH',
+              'STUDIO_MAYA',
+              'CHANNEL'
+          ]
+
         self.assertEqual(foo_obj.variables.keys(), variable_list)
 
     def test_platform_supported(self):
@@ -176,7 +193,7 @@ class EnvironmentTester(unittest.TestCase):
     def setUp(self):
         self.environ = os.environ.copy()
         os.environ['ECO_ENV'] = os.path.join(ECO_ROOT, 'env')
-        os.environ['PG_SW_BASE'] = os.path.join(ECO_ROOT, 'test', 'pg_sw_base')
+        os.environ['STUDIO_SW_BASE'] = os.path.join(ECO_ROOT, 'test', 'studio_sw_base')
         self.tools = ['maya2015', 'yeti1.3.16']
         self.environment_obj = Environment(self.tools)
 
@@ -185,14 +202,24 @@ class EnvironmentTester(unittest.TestCase):
 
     def test_get_env(self):
         test_get_env = '''#Environment created via Ecosystem
-setenv MAYA_VERSION 2015
-setenv MAYA_LOCATION /Applications/Autodesk/maya${MAYA_VERSION}/Maya.app/Contents
-setenv YETI_VERSION 1.3.16
-setenv YETI_ROOT ${PG_SW_BASE}/peregrinelabs/Yeti-v${YETI_VERSION}_Maya${MAYA_VERSION}-darwin64
-setenv MAYA_MODULE_PATH ${YETI_ROOT}
-setenv DYLD_LIBRARY_PATH ${MAYA_LOCATION}/MacOS
-setenv PATH ${MAYA_LOCATION}/bin:${YETI_ROOT}/bin:${PATH}
+  setenv MAYA_VERSION: 2015
+  setenv STUDIO_MAYA: ${STUDIO_SW_BASE}/MayaAPPDIR
+  setenv STUDIO_MAYA_VER: ${STUDIO_MAYA}/${MAYA_VERSION}
+  setenv MAYA_SCRIPT_PATH: ${STUDIO_MAYA_VER}/scripts
+  setenv MI_CUSTOM_SHADER_PATH: ${STUDIO_MAYA_VER}/mentalray/include
+  setenv MAYA_SHELF_PATH: ${STUDIO_MAYA_VER}/shelves
+  setenv MAYA_PLUG_IN_PATH: ${STUDIO_MAYA_VER}/plug-ins
+  setenv MAYA_LOCATION: C:/Program Files/Autodesk/Maya${MAYA_VERSION}
+  setenv YETI_VERSION: 1.3.16
+  setenv YETI_ROOT: ${PG_SW_BASE}/peregrinelabs/Yeti-v${YETI_VERSION}_Maya${MAYA_VERSION}-windows64
+  setenv MAYA_MODULE_PATH: ${STUDIO_MAYA_VER}/modules;${YETI_ROOT}
+  setenv XBMLANGPATH: ${STUDIO_MAYA_VER}/icons
+  setenv PYTHONPATH: ${STUDIO_MAYA_VER}/beta/python
+  setenv PATH: ${MAYA_LOCATION}/bin;C:/Program Files/Common Files/Autodesk Shared/;C:/Program Files (x86)/Autodesk/Backburner/;${YETI_ROOT}/bin;${PATH}
+  setenv CHANNEL: beta
 '''
+        pprint(self.environment_obj.__dict__)
+        
         self.assertEqual(self.environment_obj.get_env(), test_get_env)
 
 
