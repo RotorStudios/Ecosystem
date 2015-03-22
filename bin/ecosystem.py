@@ -44,6 +44,11 @@ import string
 import subprocess
 import platform
 
+import pprint
+
+pp = pprint.PrettyPrinter( indent=2)
+
+
 
 def determine_number_of_cpus():
     """
@@ -234,6 +239,10 @@ class Variable:
             value = value + var_value
             count += 1
         return value
+    
+    def __repr__(self):
+        pp = pprint.PrettyPrinter( indent=4)
+        return pp.pformat(self.__dict__)
 
 
 class Tool:
@@ -285,6 +294,8 @@ class Tool:
     #         return True
     #     return False
 
+    def __repr__(self):
+        return pp.pformat(self.__dict__)
 
 class Environment:
     """Once initialized this will represent the environment defined by the wanted tools"""
@@ -305,11 +316,10 @@ class Environment:
         possible_tools = [Tool(file_name) for file_name in glob.glob(self.environment_files)]
         for new_tool in possible_tools:
             if new_tool.platform_supported:
-                tool_name = new_tool.tool + new_tool.version if new_tool.version != '' else new_tool.tool
+                tool_name = new_tool.tool if new_tool.version == '' else '{tool}{version}'.format(**new_tool.__dict__)
                 if tool_name in self.wants:
                     if new_tool.tool in self.tools:
-                        print 'Duplicate tool specified: \
-                               {0} using {1}{2}'.format(new_tool.tool, new_tool.tool, new_tool.version)
+                        print 'Duplicate tool specified: {tool} using {tool}{version}'.format(**new_tool.__dict__)
                     self.tools[new_tool.tool] = new_tool
                     self.wants.remove(tool_name)
                 if new_tool.tool in self.wants:
@@ -319,10 +329,10 @@ class Environment:
                             if required_tool not in self.tools:
                                 self.wants = self.wants | set(list(required_tool))
 
+        template_msg = 'Unable to resolve all required {0}: ({1}) are missing!\n  Please check your list and try again!'
         if len(self.wants) != 0:
             missing_tools = ', '.join(self.wants)
-            print 'Unable to resolve all of the required tools ({0} is missing), \
-                   please check your list and try again!'.format(missing_tools)
+            print template_msg.format('tools', missing_tools)
             self.success = False
 
         for tool_name, tool in self.tools.items():
@@ -343,8 +353,7 @@ class Environment:
         missing_dependencies = set([dep for dep in ext_dependencies if not os.getenv(dep)])
         if missing_dependencies:
             missing_vars = ', '.join(missing_dependencies)
-            print 'Unable to resolve all of the required variables ({0} is missing), \
-                       please check your list and try again!'.format(missing_vars)
+            print template_msg.format('variables', missing_vars)
             self.success = False
 
     def get_var(self, var):
@@ -402,6 +411,8 @@ class Environment:
             for env_name, env_value in os.environ.items():
                 os.environ[env_name] = os.path.expandvars(env_value)
 
+    def __repr__(self):
+        return pp.pformat(self.__dict__)
 
 def list_available_tools():
     environment_files = '*.env'
