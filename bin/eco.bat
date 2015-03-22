@@ -1,3 +1,4 @@
 @echo off&setlocal
-call .\ecosystem-init.bat
+call %~dp0ecosystem-init.bat
+title eco-system
 cmd
