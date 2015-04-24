@@ -246,6 +246,7 @@ class Tool:
     def __init__(self, filename):
         try:
             with open(filename, 'r') as f:
+                # print f.read()
                 self.in_dictionary = eval(f.read())
         except IOError:
             print 'Unable to find file {0} ...'.format(filename)
@@ -393,12 +394,13 @@ class Environment:
         self.defined_variables = []
         self.value = '#Environment created via Ecosystem\n'
         
-        for var_name, variable in self.variables.items():
+        for var_name in sorted(self.variables):
+            variable = self.variables[var_name]
             if self.variables[var_name].has_value():
                     if not set_environment:
                         self.get_var(variable)
                     else:
-                    self.get_var_env(variable)
+                        self.get_var_env(variable)
         
         if not set_environment:
             return self.value
@@ -408,7 +410,8 @@ class Environment:
             os.environ[env_name] = os.path.expandvars(env_value)
         for env_name, env_value in os.environ.items():
             os.environ[env_name] = os.path.expandvars(env_value)
-    
+        for env_name, env_value in os.environ.items():
+            os.environ[env_name] = os.path.expandvars(env_value)
     def __repr__(self):
         return pp.pformat(self.__dict__)
 
