@@ -8,10 +8,10 @@ set ECO_ENV=%ECO_ROOT%\env
 set PATH=%PATH%;%ECO_ROOT%\bin
 
 
-Doskey eco=%python_exe% ecosystem.py $*
+Doskey eco=%python_exe% %ECO_ROOT%\bin\ecosystem.py $*
 
-
-
-Doskey maya-2015=%python_exe% %ECO_ROOT%\bin\ecosystem.py -r maya -t maya2015,base,pythonBase,mayaPortable
-Doskey maya-2015-beta=%python_exe% %ECO_ROOT%\bin\ecosystem.py -r maya -t maya2015,base,pythonBase,mayaPortable,beta
-Doskey maya-2015-devUser=%python_exe% %ECO_ROOT%\bin\ecosystem.py -r maya -t maya2015,base,pythonBase,mayaPortable,devUser
+Doskey        maya-2015=%python_exe% %ECO_ROOT%\bin\ecosystem.py -r maya -t maya2015,base,pythonBase,mayaPortable
+Doskey   maya-2015-beta=%python_exe% %ECO_ROOT%\bin\ecosystem.py -r maya -t maya2015,base,mayaPortable,beta
+Doskey    maya-2015-dev=%python_exe% %ECO_ROOT%\bin\ecosystem.py -r maya -t maya2015,base,mayaPortable,dev
+Doskey maya-2015-dev-jc=%python_exe% %ECO_ROOT%\bin\ecosystem.py -r maya -t maya2015,base,mayaPortable,devjc
+Doskey     eclipse-luna=%python_exe% %ECO_ROOT%\bin\ecosystem.py -r eco-eclipse-luna-setup.bat -t eclipse-luna,base
