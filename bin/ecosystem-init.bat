@@ -14,4 +14,4 @@ Doskey        maya-2015=%python_exe% %ECO_ROOT%\bin\ecosystem.py -r maya -t maya
 Doskey   maya-2015-beta=%python_exe% %ECO_ROOT%\bin\ecosystem.py -r maya -t maya2015,base,mayaPortable,beta
 Doskey    maya-2015-dev=%python_exe% %ECO_ROOT%\bin\ecosystem.py -r maya -t maya2015,base,mayaPortable,dev
 Doskey maya-2015-dev-jc=%python_exe% %ECO_ROOT%\bin\ecosystem.py -r maya -t maya2015,base,mayaPortable,devjc
-Doskey     eclipse-luna=%python_exe% %ECO_ROOT%\bin\ecosystem.py -r eco-eclipse-luna-setup.bat -t eclipse-luna,base
+Doskey     eclipse-luna=%python_exe% %ECO_ROOT%\bin\ecosystem.py -r eclipse-luna-setup.bat -t eclipse-luna,base
