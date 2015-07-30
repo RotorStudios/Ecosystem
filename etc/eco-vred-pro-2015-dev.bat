@@ -3,4 +3,4 @@
 title %~n1
 call %~dp0init-launcher.bat
 
-call %python_exe% %ECO_ROOT%\bin\ecosystem.py -t base,vred-pro2015,beta,dev -r vred-launch
+call %python_exe% %ECO_ROOT%\bin\ecosystem.py -t base,vred-pro2015,dev -r vred-launch
