@@ -1,6 +1,6 @@
 @ECHO OFF
 
-set python_exe=S:\python\Python27\python.exe
+set python_exe=S:\python\Python27\pythonw.exe
 
 for %%d in (%~dp0..) do set ECO_ROOT=%%~fd
 
@@ -17,4 +17,4 @@ Doskey  maya-2015-alpha=%python_exe% %ECO_ROOT%\bin\ecosystem.py -t base,maya201
 Doskey    maya-2015-dev=%python_exe% %ECO_ROOT%\bin\ecosystem.py -t base,maya2015,mayaportable,dev -r maya
 Doskey maya-2015-dev-jc=%python_exe% %ECO_ROOT%\bin\ecosystem.py -t base,maya2015,mayaportable,devjc -r maya
 
-Doskey     eclipse-luna=%python_exe% %ECO_ROOT%\bin\ecosystem.py -t base,eclipse-luna -r eclipse-luna-setup.bat
+Doskey     eclipse-luna=start %python_exe% %ECO_ROOT%\bin\ecosystem.py -t base,eclipse-luna -r eclipse-luna-setup.bat
