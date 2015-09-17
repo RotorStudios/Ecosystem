@@ -18,3 +18,5 @@ Doskey    maya-2015-dev=%python_exe% %ECO_ROOT%\bin\ecosystem.py -t base,maya201
 Doskey maya-2015-dev-jc=%python_exe% %ECO_ROOT%\bin\ecosystem.py -t base,maya2015,mayaportable,devjc -r maya
 
 Doskey     eclipse-luna=start %python_exe% %ECO_ROOT%\bin\ecosystem.py -t base,eclipse-luna -r eclipse-luna-setup.bat
+
+Doskey     rv="S:\dev_area\apps\tweak\rv-stable.lnk"
