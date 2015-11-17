@@ -1,10 +1,7 @@
 @echo off&setlocal
-title eco-system
-
-pushd %~dp0
-
 call %~dp0ecosystem-init.bat
+call %~dp0ecosystem-cli.bat
+call %~dp0ecosystem-cli-intro.bat
+title eco-system
 set "PROMPT=(eco) %PROMPT%"
 cmd
-
-popd
