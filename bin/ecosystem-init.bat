@@ -6,19 +6,4 @@ set pythonw_exe=S:\python\Python27\pythonw.exe
 for %%d in (%~dp0..) do set ECO_ROOT=%%~fd
 
 set ECO_ENV=%ECO_ROOT%\env
-set PATH=%PATH%;%ECO_ROOT%\bin
-
-
-Doskey eco=%python_exe% %ECO_ROOT%\bin\ecosystem.py $*
-
-Doskey maya-2015-stable=%pythonw_exe% %ECO_ROOT%\bin\ecosystem.py -t base,maya2015,mayaportable,stable -r maya
-Doskey   maya-2015-beta=%pythonw_exe% %ECO_ROOT%\bin\ecosystem.py -t base,maya2015,mayaportable,beta -r maya
-Doskey  maya-2015-alpha=%pythonw_exe% %ECO_ROOT%\bin\ecosystem.py -t base,maya2015,mayaportable,alpha -r maya
-
-Doskey    maya-2015-dev=%pythonw_exe% %ECO_ROOT%\bin\ecosystem.py -t base,maya2015,mayaportable,dev -r maya
-Doskey maya-2015-dev-jc=%pythonw_exe% %ECO_ROOT%\bin\ecosystem.py -t base,maya2015,mayaportable,devjc -r maya
-
-Doskey eclipse-luna=start %python_exe% %ECO_ROOT%\bin\ecosystem.py -t base,eclipse-luna -r eclipse-luna-setup.bat
-
-
-Doskey     rv="S:\dev_area\apps\tweak\rv-stable.lnk"
+set PATH=%PATH%;%ECO_ROOT%\bin;S:\dev_area\Utilities\unxUtils
