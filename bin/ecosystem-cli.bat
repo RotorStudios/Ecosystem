@@ -12,8 +12,8 @@ Doskey maya2015-rc=%pythonw_exe% %ECO_ROOT%\bin\ecosystem.py    -r maya -t base,
 Doskey maya2015-beta=%pythonw_exe% %ECO_ROOT%\bin\ecosystem.py  -r maya -t base,maya2015,mayaportable,beta,mtoa
 Doskey maya2015-alpha=%pythonw_exe% %ECO_ROOT%\bin\ecosystem.py -r maya -t base,maya2015,mayaportable,alpha,mtoa
 
-Doskey maya2015-dev=%pythonw_exe% %ECO_ROOT%\bin\ecosystem.py   -r maya -t base,maya2015,mayaportable,dev,mtoa,altus
-Doskey maya2015-devjc=%pythonw_exe% %ECO_ROOT%\bin\ecosystem.py -r maya -t base,maya2015,mayaportable,devjc,mtoa,altus
+Doskey maya2015-dev=%pythonw_exe% %ECO_ROOT%\bin\ecosystem.py   -r maya -t base,maya2015,mayaportable,dev,mtoa,altus,alShaders
+Doskey maya2015-devjc=%pythonw_exe% %ECO_ROOT%\bin\ecosystem.py -r maya -t base,maya2015,mayaportable,devjc,mtoa,altus,alShaders
 
 :: IDE aliases
 Doskey eclipse-luna=%pythonw_exe% %ECO_ROOT%\bin\ecosystem.py -r eco-eclipse-luna-setup.bat -t base,eclipse-luna
