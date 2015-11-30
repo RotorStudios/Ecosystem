@@ -3,6 +3,8 @@
 mode con: cols=100 lines=50
 powershell -command "&{$H=get-host;$W=$H.ui.rawui;$B=$W.buffersize;$B.width=100;$B.height=9999;$W.buffersize=$B;}"
 
+set RS_SHORTCUTS=S:\dev_area\Applications
+
 Doskey eco=%python_exe% %ECO_ROOT%\bin\ecosystem.py $*
 
 :: Maya aliases
