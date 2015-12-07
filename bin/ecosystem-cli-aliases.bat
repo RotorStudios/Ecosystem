@@ -5,7 +5,7 @@ powershell -command "&{$H=get-host;$W=$H.ui.rawui;$B=$W.buffersize;$B.width=100;
 
 set RS_SHORTCUTS=S:\dev_area\Applications
 
-Doskey eco=%__run_eco_e% $*
+Doskey eco=%eco_run% $*
 
 
 :: Maya aliases
@@ -19,7 +19,7 @@ Doskey maya2015-dev=%eco_run_w%   -r maya -t base,maya2015,mayaportable,dev,mtoa
 Doskey maya2015-devjc=%eco_run_w% -r maya -t base,maya2015,mayaportable,devjc,mtoa,altus,alShaders
 
 :: IDE aliases
-Doskey eclipse-luna=%__run_eco% -r eco-eclipse-luna-setup.bat -t base,eclipse-luna
+Doskey eclipse-luna=%eco_run% -r eco-eclipse-luna-setup.bat -t base,eclipse-luna
 ::Doskey     sublimeText2=%eco_run_w -r sublime_text -t base,sublimeText2
 Doskey sublime2=%RS_SHORTCUTS%\sublime_text2.lnk
 Doskey sublime3=%RS_SHORTCUTS%\sublime_text3.lnk
