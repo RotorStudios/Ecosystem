@@ -3,8 +3,82 @@ import os
 import sys
 from pprint import pprint
 
+LAST_TOOL = 'vred-pro2015'
+NO_TOOLS = 44
+MAYA_VARIABLE_LIST = [
+     'MAYA_ver',
+     'MAYA_MODULE_PATH',
+     'NIM_CONNECTOR',
+     'RS_MAYA_PY_site_packages',
+     'PATH',
+     'RS_BASE_PY_site_packages',
+     'RS_TOOLS_MEL_OVERRIDES',
+     'MI_CUSTOM_SHADER_PATH',
+     'RS_TOOLS_MEL_STARTUP',
+     'RS_IACTIVE_TOOLS',
+     'RS_DEPARTMENT',
+     'MAYA_SCRIPT_PATH',
+     'PYTHON_version',
+     'MAYA_LOCATION',
+     'PYTHONPATH',
+     'MAYA_PRESETS_PATH',
+     'DEADLINE_STANDALONE',
+     'DYLD_LIBRARY_PATH',
+     'RS_STUDIO_ICONS',
+     'RS_LAUNCHER_MAYA',
+     'MAYA_PLUG_IN_PATH',
+     'PYTHONHOME',
+     'RS_TOOLS_SHELF'
+]
+
+TEST_GET_TOOL = ['maya2015', 'mtoa1.2.5','base', 'stable']
+TEST_GET_ENV = '''#Environment created via Ecosystem
+  setenv MAYA_version: 2015
+  setenv RS_SW_BASE: S:/dev_area/DEPLOYMENT
+  setenv RS_DEPLOY: ${RS_SW_BASE}/Production/Deploy
+  setenv RS_STUDIO_envs: ${RS_DEPLOY}/studio-envs
+  setenv MTOA_VERSION: 1.2.5.0
+  setenv MTOA: ${RS_STUDIO_envs}/solidangle/mtoa/${MTOA_VERSION}-windows64/${MAYA_version}
+  setenv ARNOLD_PLUGIN_PATH: ${MTOA}/shaders
+  setenv ARNOLD_VERSION: 4.2.11.3
+  setenv CHANNEL: stable
+  setenv DEADLINE_STANDALONE: ${RS_STUDIO_envs}/deadline/Deadline7
+  setenv MAYA_LOCATION: C:/Program Files/Autodesk/Maya${MAYA_version}
+  setenv MAYA_MODULE_PATH: ${RS_STUDIO_envs}/maya/modules
+  setenv MAYA_PLUG_IN_PATH: ${MAYA_MODULE_PATH}/${MAYA_version}-windows;${MTOA}/plug-ins
+  setenv MAYA_PRESETS_PATH: ${RS_STUDIO_envs}/maya/presets
+  setenv MAYA_RENDER_DESC_PATH: ${MTOA}
+  setenv STUDIO_version: v0002
+  setenv RS_DEPLOY_studio: ${RS_DEPLOY}/studio/${STUDIO_version}
+  setenv RS_TOOLS_MEL: ${RS_DEPLOY_studio}/tools/mel
+  setenv MAYA_SCRIPT_PATH: ${RS_TOOLS_MEL}/scripts
+  setenv MI_CUSTOM_SHADER_PATH: ${RS_STUDIO_envs}/maya/${MAYA_version}/mentalray/win64/include
+  setenv MTOA_EXTENSIONS: ${MTOA}/extensions
+  setenv MTOA_EXTENSIONS_PATH: ${MTOA}/extensions
+  setenv NIM_CONNECTOR: ${RS_STUDIO_envs}/NIM/nim_connector_v1-0-0-150810
+  setenv OSNAME: Windows
+  setenv PYTHONHOME: ${MAYA_LOCATION}/Python
+  setenv PATH: ${RS_DEPLOY}/lib;;${MAYA_LOCATION}/bin;${PYTHONHOME}/Scripts;${MAYA_LOCATION}/Python/Lib/site-packages/pymel/tools/bin;C:/Program Files/Common Files/Autodesk Shared/;C:/Program Files (x86)/Autodesk/Backburner;;${MTOA}/bin;${PATH}
+  setenv RS_PY_TOOLS: ${RS_DEPLOY_studio}/tools/python;${RS_DEPLOY_studio}/python
+  setenv RS_DEPARTMENT: POST
+  setenv PYTHON_version: 2.7.9
+  setenv RS_MAYA_PY_site_packages: ${RS_STUDIO_envs}/maya/${MAYA_version}/python/py${PYTHON_version}-win64/lib/site-packages
+  setenv RS_BASE_PY_site_packages: ${RS_STUDIO_envs}/python/py${PYTHON_version}-win64/Lib/site-packages;
+  setenv RS_LAUNCHER: ${RS_DEPLOY_studio}/launcher
+  setenv RS_LAUNCHER_MAYA: ${RS_LAUNCHER}/RS/launch/maya
+  setenv PYTHONPATH: ${RS_BASE_PY_site_packages};${RS_MAYA_PY_site_packages};${RS_PY_TOOLS};${RS_LAUNCHER};${RS_LAUNCHER_MAYA}/${RS_DEPARTMENT};${DEADLINE_STANDALONE}/python;${NIM_CONNECTOR};${MTOA}/scripts
+  setenv RS_IACTIVE_TOOLS: I:/tools
+  setenv RS_STUDIO_ICONS: ${RS_DEPLOY}/Resources
+  setenv RS_TOOLS_MEL_OVERRIDES: ${MAYA_SCRIPT_PATH}/overrides
+  setenv RS_TOOLS_MEL_STARTUP: ${MAYA_SCRIPT_PATH}/startup
+  setenv RS_TOOLS_SHELF: ${RS_TOOLS_MEL}/shelves
+  setenv RS_USER_DEV_HOME: S:/dev_area/users/${USERNAME}
+  setenv RS_USER_HOME: T:/_COMMON_SHARE/Freelancers/${USERNAME}
+'''
+
 ECO_ROOT = os.environ.get('ECO_ROOT') or os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-sys.path.append(os.path.join(ECO_ROOT, 'bin'))
+ECO_ENV  = os.path.join(ECO_ROOT, 'Ecosystem-Env')
+
 from ecosystem import ValueWrapper, Variable, Tool, Environment, list_available_tools, main
 
 
@@ -127,18 +201,19 @@ class VariableTester(unittest.TestCase):
         self.assertEqual(self.variable_obj.envValues, '/some/path')
 
 
-class ToolTester(unittest.TestCase):
+class ToolTesterMaya(unittest.TestCase):
 
     def setUp(self):
         self.environ = os.environ.copy()
-        os.environ['ECO_ENV'] = os.path.join(ECO_ROOT, 'env')
+        os.environ['ECO_ENV'] = os.path.join(ECO_ENV, 'env')
         self.env_file = 'maya_2015.env'
         self.tool = 'maya'
         self.version = '2015'
         self.platforms = ['windows', 'linux', 'darwin']
-        self.requirements = ['base','pythonBase']
-        self.filename = os.path.join(ECO_ROOT, 'env', self.env_file)
+        self.requirements = ['base']
+        self.filename = os.path.join(ECO_ENV, 'env', self.env_file)
         self.tool_obj = Tool(self.filename)
+#         self.maxDiff = None
 
     def tearDown(self):
         os.environ = self.environ
@@ -162,24 +237,8 @@ class ToolTester(unittest.TestCase):
                 self.variables = {}
         foo_obj = Foo()
         self.tool_obj.get_vars(foo_obj)
-        variable_list = [
-              'MAYA_SCRIPT_PATH',
-              'MI_CUSTOM_SHADER_PATH',
-              'STUDIO_MAYA_VER',
-              'MAYA_SHELF_PATH',
-              'MAYA_PLUG_IN_PATH',
-              'MAYA_LOCATION',
-              'MAYA_VERSION',
-              'MAYA_MODULE_PATH',
-              'DYLD_LIBRARY_PATH',
-              'XBMLANGPATH',
-              'PYTHONPATH',
-              'PATH',
-              'STUDIO_MAYA',
-              'CHANNEL'
-          ]
-
-        self.assertEqual(foo_obj.variables.keys(), variable_list)
+        pprint(foo_obj.variables.keys())
+        self.assertEqual(foo_obj.variables.keys(), MAYA_VARIABLE_LIST)
 
     def test_platform_supported(self):
         self.assertTrue(self.tool_obj.platform_supported, True)
@@ -192,44 +251,26 @@ class EnvironmentTester(unittest.TestCase):
 
     def setUp(self):
         self.environ = os.environ.copy()
-        os.environ['ECO_ENV'] = os.path.join(ECO_ROOT, 'env')
-        os.environ['STUDIO_SW_BASE'] = os.path.join(ECO_ROOT, 'test', 'studio_sw_base')
-        self.tools = ['maya2015', 'yeti1.3.16']
+        os.environ['ECO_ENV'] = os.path.join(ECO_ENV, 'env')
+        os.environ['RS_SW_BASE'] = os.path.join(ECO_ROOT, 'test', 'pg_sw_base')
+        self.tools = TEST_GET_TOOL
         self.environment_obj = Environment(self.tools)
 
     def tearDown(self):
         os.environ = self.environ
 
     def test_get_env(self):
-        test_get_env = '''#Environment created via Ecosystem
-  setenv MAYA_VERSION: 2015
-  setenv STUDIO_MAYA: ${STUDIO_SW_BASE}/MayaAPPDIR
-  setenv STUDIO_MAYA_VER: ${STUDIO_MAYA}/${MAYA_VERSION}
-  setenv MAYA_SCRIPT_PATH: ${STUDIO_MAYA_VER}/scripts
-  setenv MI_CUSTOM_SHADER_PATH: ${STUDIO_MAYA_VER}/mentalray/include
-  setenv MAYA_SHELF_PATH: ${STUDIO_MAYA_VER}/shelves
-  setenv MAYA_PLUG_IN_PATH: ${STUDIO_MAYA_VER}/plug-ins
-  setenv MAYA_LOCATION: C:/Program Files/Autodesk/Maya${MAYA_VERSION}
-  setenv YETI_VERSION: 1.3.16
-  setenv YETI_ROOT: ${PG_SW_BASE}/peregrinelabs/Yeti-v${YETI_VERSION}_Maya${MAYA_VERSION}-windows64
-  setenv MAYA_MODULE_PATH: ${STUDIO_MAYA_VER}/modules;${YETI_ROOT}
-  setenv XBMLANGPATH: ${STUDIO_MAYA_VER}/icons
-  setenv PYTHONPATH: ${STUDIO_MAYA_VER}/beta/python
-  setenv PATH: ${MAYA_LOCATION}/bin;C:/Program Files/Common Files/Autodesk Shared/;C:/Program Files (x86)/Autodesk/Backburner/;${YETI_ROOT}/bin;${PATH}
-  setenv CHANNEL: beta
-'''
-        pprint(self.environment_obj.__dict__)
-        
-        self.assertEqual(self.environment_obj.get_env(), test_get_env)
+        pprint(self.environment_obj.get_env())
+        self.assertEqual(self.environment_obj.get_env(), TEST_GET_ENV)
 
 
 class ListAvailableToolsTester(unittest.TestCase):
 
     def setUp(self):
         self.environ = os.environ.copy()
-        os.environ['ECO_ENV'] = os.path.join(ECO_ROOT, 'env')
-        self.last_tool = 'yeti1.3.8'
-        self.no_tools = 63
+        os.environ['ECO_ENV'] = os.path.join(ECO_ENV, 'env')
+        self.last_tool = LAST_TOOL
+        self.no_tools  = NO_TOOLS
 
     def tearDown(self):
         os.environ = self.environ
