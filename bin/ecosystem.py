@@ -246,8 +246,12 @@ class Tool:
     def __init__(self, filename):
         try:
             with open(filename, 'r') as f:
-                # print f.read()
-                self.in_dictionary = eval(f.read())
+                try: 
+                    self.in_dictionary = eval(f.read())
+                except Exception, err:
+                    print 
+                    raise RuntimeError( '\nUnable to unpack file - {f}\n  {e}'.format(e=err, f=filename) )
+                    
         except IOError:
             print 'Unable to find file {0} ...'.format(filename)
 
